@@ -96,36 +96,80 @@ export function Input({ label, value, onChange, type = 'number', prefix, suffix,
   );
 }
 
-export function Slider({ label, value, onChange, min, max, step = 1, format }) {
-  const pct = ((value - min) / (max - min)) * 100;
+export function Slider({ label, value, onChange, min, max, step = 1, format, unit = '' }) {
+  const [editing, setEditing] = React.useState(false);
+  const [inputVal, setInputVal] = React.useState('');
+  const pct = Math.min(100, Math.max(0, ((value - min) / (max - min)) * 100));
+
+  const startEdit = () => {
+    setInputVal(String(value));
+    setEditing(true);
+  };
+
+  const commitEdit = () => {
+    const parsed = parseFloat(inputVal);
+    if (!isNaN(parsed)) {
+      // Allow values outside slider range when typed manually
+      onChange(parseFloat(parsed.toFixed(2)));
+    }
+    setEditing(false);
+  };
+
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <label style={{ fontSize: 11, fontFamily: 'var(--font-mono)', letterSpacing: '0.07em', color: 'var(--muted)', textTransform: 'uppercase' }}>
           {label}
         </label>
-        <span style={{ fontSize: 14, fontFamily: 'var(--font-mono)', fontWeight: 500, color: 'var(--accent)' }}>
-          {format ? format(value) : value}
-        </span>
+        {editing ? (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+            <input
+              autoFocus
+              type="number"
+              value={inputVal}
+              min={min}
+              max={max}
+              step={step}
+              onChange={e => setInputVal(e.target.value)}
+              onBlur={commitEdit}
+              onKeyDown={e => { if (e.key === 'Enter') commitEdit(); if (e.key === 'Escape') setEditing(false); }}
+              style={{
+                width: 72, padding: '3px 6px', fontSize: 13, fontFamily: 'var(--font-mono)',
+                fontWeight: 600, color: 'var(--accent)', border: '1px solid var(--accent)',
+                borderRadius: 4, background: 'var(--accent-pale)', textAlign: 'right', outline: 'none',
+              }}
+            />
+            {unit && <span style={{ fontSize: 12, color: 'var(--accent)', fontFamily: 'var(--font-mono)' }}>{unit}</span>}
+          </div>
+        ) : (
+          <span
+            onClick={startEdit}
+            title="Click to type a custom value"
+            style={{
+              fontSize: 14, fontFamily: 'var(--font-mono)', fontWeight: 600, color: 'var(--accent)',
+              cursor: 'text', padding: '2px 6px', borderRadius: 4, border: '1px solid transparent',
+              transition: 'all 0.15s',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--accent)'; e.currentTarget.style.background = 'var(--accent-pale)'; }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor = 'transparent'; e.currentTarget.style.background = 'transparent'; }}
+          >
+            {format ? format(value) : value}
+          </span>
+        )}
       </div>
-      <div style={{ position: 'relative' }}>
-        <input
-          type="range"
-          min={min}
-          max={max}
-          step={step}
-          value={value}
-          onChange={e => onChange(parseFloat(e.target.value))}
-          style={{
-            width: '100%',
-            height: 4,
-            appearance: 'none',
-            background: `linear-gradient(to right, var(--accent) ${pct}%, var(--paper-3) ${pct}%)`,
-            borderRadius: 2,
-            cursor: 'pointer',
-          }}
-        />
-      </div>
+      <input
+        type="range"
+        min={min}
+        max={max}
+        step={step}
+        value={Math.min(max, Math.max(min, value))}
+        onChange={e => onChange(parseFloat(e.target.value))}
+        style={{
+          width: '100%', height: 4, appearance: 'none',
+          background: `linear-gradient(to right, var(--accent) ${pct}%, var(--paper-3) ${pct}%)`,
+          borderRadius: 2, cursor: 'pointer',
+        }}
+      />
     </div>
   );
 }
@@ -187,7 +231,7 @@ export function CurrencyInput({ label, value, onChange, hint }) {
           style={{
             width: '100%',
             padding: '10px 12px 10px 28px',
-            background: 'var(--paper)', 
+            background: 'var(--paper)',
             border: '1px solid var(--border)',
             borderRadius: 'var(--radius)',
             fontSize: 14,
