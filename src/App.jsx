@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import Sidebar from './components/Sidebar.jsx';
 import Dashboard from './pages/Dashboard.jsx';
 import SIPPlanner from './pages/SIPPlanner.jsx';
@@ -15,7 +15,6 @@ const DEFAULT_PROFILE = {
   retirementAge: 40,
   monthlyExpense: 100000,
   targetCorpus: 50000000,
-  currentCorpus: 0,
   expectedReturn: 14,
   postRetirementReturn: 8,
   inflation: 6,
@@ -32,28 +31,34 @@ export default function App() {
   const [page, setPage] = useState('dashboard');
   const [setupDone, setSetupDone] = useLocalStorage('ww_setup', false);
 
+  // Net worth total is the single source of truth for current corpus
+  const netWorthTotal = useMemo(
+    () => assets.reduce((sum, a) => sum + a.value, 0),
+    [assets]
+  );
+
+  // Merge netWorthTotal into profile so all pages stay in sync
+  const profileWithCorpus = useMemo(
+    () => ({ ...profile, currentCorpus: netWorthTotal }),
+    [profile, netWorthTotal]
+  );
+
   if (!setupDone) {
     return <ProfileSetup profile={profile} onSave={(p) => { setProfile(p); setSetupDone(true); }} />;
   }
 
   const navItems = {
-    dashboard: <Dashboard profile={profile} sips={sips} netWorth={assets} onNav={setPage} />,
+    dashboard: <Dashboard profile={profileWithCorpus} sips={sips} netWorth={assets} onNav={setPage} />,
     sip: <SIPPlanner sips={sips} onSipsChange={setSips} />,
-    retirement: <Retirement profile={profile} onProfileChange={setProfile} sips={sips} />,
+    retirement: <Retirement profile={profileWithCorpus} onProfileChange={setProfile} sips={sips} netWorthTotal={netWorthTotal} />,
     benchmark: <Benchmark sips={sips} />,
     networth: <NetWorth assets={assets} onAssetsChange={setAssets} />,
-    advisor: <AIAdvisor profile={profile} sips={sips} assets={assets} />,
-  };
-
-  // Add net worth to sidebar by modifying nav
-  const handleNav = (id) => {
-    // Treat 'dashboard' clicks on net worth section as networth page
-    setPage(id);
+    advisor: <AIAdvisor profile={profileWithCorpus} sips={sips} assets={assets} />,
   };
 
   return (
     <div style={{ display: 'flex', minHeight: '100vh' }}>
-      <Sidebar active={page} onNav={handleNav} />
+      <Sidebar active={page} onNav={setPage} />
       <main style={{
         flex: 1,
         marginLeft: 220,

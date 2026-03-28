@@ -17,7 +17,7 @@ const CustomTooltip = ({ active, payload, label }) => {
   );
 };
 
-export default function Retirement({ profile, onProfileChange, sips }) {
+export default function Retirement({ profile, onProfileChange, sips, netWorthTotal }) {
   const years = yearsToRetirement(profile.age, profile.retirementAge);
   const totalMonthly = sips.reduce((s, x) => s + x.amount, 0);
 
@@ -85,11 +85,16 @@ export default function Retirement({ profile, onProfileChange, sips }) {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
               <Slider label="Current Age" value={profile.age} onChange={v => onProfileChange({ ...profile, age: v })} min={20} max={50} format={v => `${v} yrs`} />
               <Slider label="Retirement Age" value={profile.retirementAge} onChange={v => onProfileChange({ ...profile, retirementAge: v })} min={35} max={65} format={v => `${v} yrs`} />
-              <CurrencyInput
-                label="Current Savings (₹)"
-                value={profile.currentCorpus || 0}
-                onChange={v => onProfileChange({ ...profile, currentCorpus: v })}
-              />
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                <label style={{ fontSize: 11, fontFamily: 'var(--font-mono)', letterSpacing: '0.07em', color: 'var(--muted)', textTransform: 'uppercase' }}>
+                  Current Net Worth
+                </label>
+                <div style={{ padding: '10px 14px', background: 'var(--green-pale)', border: '1px solid var(--green-light)', borderRadius: 'var(--radius)', fontSize: 14, fontFamily: 'var(--font-mono)', fontWeight: 500, color: 'var(--green)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span>{formatINR(netWorthTotal || 0)}</span>
+                  <span style={{ fontSize: 10, color: 'var(--green)', opacity: 0.7 }}>← from Net Worth</span>
+                </div>
+                <div style={{ fontSize: 11, color: 'var(--muted)', fontStyle: 'italic' }}>Update in the Net Worth tab</div>
+              </div>
               <CurrencyInput
                 label="Monthly Expenses Today (₹)"
                 value={profile.monthlyExpense}
