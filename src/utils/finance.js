@@ -13,6 +13,20 @@ export const formatINR = (amount, compact = false) => {
   }).format(amount);
 };
 
+// Format number with Indian commas (for input display)
+export const formatIndianNumber = (value) => {
+  if (!value && value !== 0) return '';
+  const num = Math.round(Number(String(value).replace(/,/g, '')));
+  if (isNaN(num)) return '';
+  return new Intl.NumberFormat('en-IN', { maximumFractionDigits: 0 }).format(num);
+};
+
+// Parse comma-formatted Indian number back to integer
+export const parseIndianNumber = (str) => {
+  const num = parseInt(String(str).replace(/,/g, ''), 10);
+  return isNaN(num) ? 0 : num;
+};
+
 export const formatPercent = (val) => `${val >= 0 ? '+' : ''}${val.toFixed(2)}%`;
 
 // SIP future value: FV = P * [((1+r)^n - 1) / r] * (1+r)
@@ -28,10 +42,20 @@ export const calcLumpFV = (principal, annualReturn, years) => {
   return principal * Math.pow(1 + annualReturn / 100, years);
 };
 
+// Inflate today's money to future value
+export const inflateToFuture = (todayAmount, inflationRate, years) => {
+  return todayAmount * Math.pow(1 + inflationRate / 100, years);
+};
+
+// Deflate future money to today's value
+export const deflateToToday = (futureAmount, inflationRate, years) => {
+  return futureAmount / Math.pow(1 + inflationRate / 100, years);
+};
+
 // Total invested in SIP
 export const calcSIPInvested = (monthlyAmount, years) => monthlyAmount * 12 * years;
 
-// Inflation adjusted value
+// Inflation adjusted value (alias for deflateToToday)
 export const inflationAdjust = (amount, inflationRate, years) => {
   return amount / Math.pow(1 + inflationRate / 100, years);
 };
@@ -68,7 +92,6 @@ export const buildSIPProjection = (monthlyAmount, annualReturn, years, startingC
       invested: Math.round(invested),
       gains: Math.round(Math.max(0, gains)),
     });
-    // Grow for next year
     for (let m = 0; m < 12; m++) {
       corpus = corpus * (1 + monthlyRate) + monthlyAmount;
     }

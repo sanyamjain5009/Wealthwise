@@ -129,3 +129,79 @@ export function Slider({ label, value, onChange, min, max, step = 1, format }) {
     </div>
   );
 }
+
+// Comma-formatted Indian currency input — fixed version
+export function CurrencyInput({ label, value, onChange, hint }) {
+  const fmt = (n) => n > 0 ? new Intl.NumberFormat('en-IN', { maximumFractionDigits: 0 }).format(n) : '';
+  const [display, setDisplay] = React.useState(() => fmt(value));
+  const [focused, setFocused] = React.useState(false);
+
+  // Only sync from parent when not actively typing
+  React.useEffect(() => {
+    if (!focused) {
+      setDisplay(fmt(value));
+    }
+  }, [value, focused]);
+
+  const handleChange = (e) => {
+    const raw = e.target.value.replace(/,/g, '').replace(/[^\d]/g, '');
+    // Update display with commas (or empty if cleared)
+    setDisplay(raw === '' ? '' : fmt(parseInt(raw, 10)));
+    // Send numeric value up — 0 if empty
+    onChange(raw === '' ? 0 : parseInt(raw, 10));
+  };
+
+  const handleFocus = (e) => {
+    setFocused(true);
+    // Show plain number while editing for easier selection
+    const raw = display.replace(/,/g, '');
+    setDisplay(raw === '0' ? '' : raw);
+    e.target.style.borderColor = 'var(--accent)';
+  };
+
+  const handleBlur = (e) => {
+    setFocused(false);
+    // Reformat with commas on blur
+    const raw = e.target.value.replace(/,/g, '');
+    const num = parseInt(raw, 10) || 0;
+    setDisplay(fmt(num));
+    onChange(num);
+    e.target.style.borderColor = 'var(--border)';
+  };
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+      <label style={{ fontSize: 11, fontFamily: 'var(--font-mono)', letterSpacing: '0.07em', color: 'var(--muted)', textTransform: 'uppercase' }}>
+        {label}
+      </label>
+      <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+        <span style={{ position: 'absolute', left: 12, fontSize: 13, color: 'var(--muted)', pointerEvents: 'none', fontFamily: 'var(--font-mono)' }}>₹</span>
+        <input
+          type="text"
+          inputMode="numeric"
+          value={display}
+          onChange={handleChange}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
+          placeholder="0"
+          style={{
+            width: '100%',
+            padding: '10px 12px 10px 28px',
+            background: 'var(--paper)', 
+            border: '1px solid var(--border)',
+            borderRadius: 'var(--radius)',
+            fontSize: 14,
+            color: 'var(--ink)',
+            fontFamily: 'var(--font-mono)',
+            transition: 'border-color 0.15s',
+          }}
+        />
+      </div>
+      {hint && (
+        <div style={{ fontSize: 11, color: 'var(--accent)', fontFamily: 'var(--font-mono)', fontStyle: 'italic' }}>
+          → {hint}
+        </div>
+      )}
+    </div>
+  );
+}
