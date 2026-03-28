@@ -122,3 +122,4 @@ All your financial data (SIPs, assets, profile) is stored in your **browser's lo
 
 This app is for **personal use and education only**. It does not constitute financial advice. Always consult a qualified financial advisor before making investment decisions.
 # Wealthwise
+# Wealthwise
