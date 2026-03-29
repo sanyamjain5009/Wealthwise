@@ -14,7 +14,7 @@ export default function ProfileSetup({ profile, onSave }) {
   return (
     <div style={{
       minHeight: '100vh',
-      background: 'var(--ink)',
+      background: 'var(--surface-2)',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
@@ -23,14 +23,14 @@ export default function ProfileSetup({ profile, onSave }) {
       <div style={{
         width: '100%',
         maxWidth: 500,
-        background: 'var(--paper)',
+        background: 'var(--surface)',
         borderRadius: 16,
         padding: 40,
         animation: 'fadeUp 0.5s ease',
       }}>
         <div style={{ marginBottom: 28 }}>
-          <div style={{ fontFamily: 'var(--font-display)', fontSize: 28, fontWeight: 600, letterSpacing: '-0.5px', marginBottom: 6 }}>
-            Welcome to Wealth<span style={{ color: 'var(--accent)' }}>Wise</span>
+          <div style={{ fontSize: 22, fontWeight: 600, letterSpacing: '-0.5px', marginBottom: 6 }}>
+            Welcome to Wealth<span style={{ color: 'var(--ink)' }}>Wise</span>
           </div>
           <div style={{ fontSize: 13.5, color: 'var(--muted)', lineHeight: 1.6 }}>
             Enter everything in <strong>today's money</strong> — we'll handle inflation automatically.
@@ -76,8 +76,8 @@ export default function ProfileSetup({ profile, onSave }) {
 
           {/* Inflation preview box */}
           {form.targetCorpus > 0 && (
-            <div style={{ background: 'var(--accent-pale)', border: '1px solid rgba(200,135,58,0.25)', borderRadius: 8, padding: 14 }}>
-              <div style={{ fontSize: 11, fontFamily: 'var(--font-mono)', color: 'var(--accent)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 8 }}>
+            <div style={{ background: 'var(--surface-2)', border: '1px solid var(--border)', borderRadius: 8, padding: 14 }}>
+              <div style={{ fontSize: 11, fontFamily: 'var(--font-mono)', color: 'var(--ink)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 8 }}>
                 Inflation Impact Preview
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 4 }}>
@@ -95,12 +95,12 @@ export default function ProfileSetup({ profile, onSave }) {
               <div style={{ height: 1, background: 'rgba(200,135,58,0.2)', margin: '8px 0' }} />
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13 }}>
                 <span style={{ fontWeight: 500 }}>Actual target at retirement</span>
-                <span style={{ fontFamily: 'var(--font-mono)', fontWeight: 700, color: 'var(--accent)' }}>{formatINR(inflatedCorpus, true)}</span>
+                <span style={{ fontFamily: 'var(--font-mono)', fontWeight: 700, color: 'var(--ink)' }}>{formatINR(inflatedCorpus, true)}</span>
               </div>
             </div>
           )}
 
-          <div style={{ fontSize: 11, color: 'var(--muted)', fontFamily: 'var(--font-mono)', padding: '8px 12px', background: 'var(--paper-2)', borderRadius: 6 }}>
+          <div style={{ fontSize: 11, color: 'var(--muted)', fontFamily: 'var(--font-mono)', padding: '8px 12px', background: 'var(--surface-2)', borderRadius: 6 }}>
             💡 Rule of thumb: Monthly expense × 300 = corpus for 4% SWR. E.g. ₹1L/mo → ₹3Cr today's money.
           </div>
 
@@ -109,8 +109,8 @@ export default function ProfileSetup({ profile, onSave }) {
             disabled={!form.name}
             style={{
               padding: '13px 24px',
-              background: form.name ? 'var(--ink)' : 'var(--paper-3)',
-              color: form.name ? 'var(--paper)' : 'var(--muted)',
+              background: form.name ? 'var(--ink)' : 'var(--surface-4)',
+              color: form.name ? '#fff' : 'var(--muted)',
               borderRadius: 8, fontSize: 14, fontWeight: 600,
               display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
               transition: 'all 0.15s', marginTop: 8,

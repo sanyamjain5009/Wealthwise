@@ -74,9 +74,9 @@ export default function Dashboard({ profile, sips, netWorth, onNav }) {
       <Card style={{ marginBottom: 24 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
           <span style={{ fontSize: 13, fontWeight: 500 }}>Retirement Goal Progress</span>
-          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 13, color: 'var(--accent)' }}>{progress.toFixed(1)}%</span>
+          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 13, color: 'var(--ink)' }}>{progress.toFixed(1)}%</span>
         </div>
-        <div style={{ height: 8, background: 'var(--paper-2)', borderRadius: 4, overflow: 'hidden' }}>
+        <div style={{ height: 8, background: 'var(--surface-2)', borderRadius: 4, overflow: 'hidden' }}>
           <div style={{
             height: '100%',
             width: `${progress}%`,
@@ -103,8 +103,8 @@ export default function Dashboard({ profile, sips, netWorth, onNav }) {
             <AreaChart data={chartData}>
               <defs>
                 <linearGradient id="corpusGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="var(--accent)" stopOpacity={0.3} />
-                  <stop offset="100%" stopColor="var(--accent)" stopOpacity={0} />
+                  <stop offset="0%" stopColor="#000" stopOpacity={0.3} />
+                  <stop offset="100%" stopColor="#000" stopOpacity={0} />
                 </linearGradient>
                 <linearGradient id="investedGrad" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="0%" stopColor="var(--green)" stopOpacity={0.2} />
@@ -114,7 +114,7 @@ export default function Dashboard({ profile, sips, netWorth, onNav }) {
               <XAxis dataKey="label" tick={{ fontSize: 11, fontFamily: 'var(--font-mono)', fill: 'var(--muted)' }} tickLine={false} axisLine={false} />
               <YAxis tick={{ fontSize: 11, fontFamily: 'var(--font-mono)', fill: 'var(--muted)' }} tickLine={false} axisLine={false} tickFormatter={v => formatINR(v, true)} />
               <Tooltip content={<CustomTooltip />} />
-              <Area type="monotone" dataKey="corpus" name="Corpus" stroke="var(--accent)" strokeWidth={2} fill="url(#corpusGrad)" />
+              <Area type="monotone" dataKey="corpus" name="Corpus" stroke="#000" strokeWidth={2} fill="url(#corpusGrad)" />
               <Area type="monotone" dataKey="invested" name="Invested" stroke="var(--green)" strokeWidth={1.5} fill="url(#investedGrad)" strokeDasharray="4 2" />
             </AreaChart>
           </ResponsiveContainer>
@@ -134,7 +134,7 @@ export default function Dashboard({ profile, sips, netWorth, onNav }) {
             >
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                  <div style={{ width: 36, height: 36, borderRadius: 8, background: 'var(--accent-pale)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <div style={{ width: 36, height: 36, borderRadius: 8, background: 'var(--surface-2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <Icon size={16} color="var(--accent)" />
                   </div>
                   <div>
@@ -154,7 +154,7 @@ export default function Dashboard({ profile, sips, netWorth, onNav }) {
               {sips.slice(0, 3).map((s, i) => (
                 <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '5px 0', borderBottom: i < Math.min(sips.length, 3) - 1 ? '1px solid var(--border)' : 'none' }}>
                   <span style={{ fontSize: 12 }}>{s.name}</span>
-                  <span style={{ fontSize: 12, fontFamily: 'var(--font-mono)', color: 'var(--accent)' }}>{formatINR(s.amount, true)}/mo</span>
+                  <span style={{ fontSize: 12, fontFamily: 'var(--font-mono)', color: 'var(--ink)' }}>{formatINR(s.amount, true)}/mo</span>
                 </div>
               ))}
             </Card>

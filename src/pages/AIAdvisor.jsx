@@ -96,7 +96,7 @@ export default function AIAdvisor({ profile, sips, assets }) {
             {messages.length === 0 && (
               <div style={{ textAlign: 'center', padding: '40px 20px', color: 'var(--muted)' }}>
                 <Sparkles size={32} style={{ margin: '0 auto 12px', display: 'block', opacity: 0.3 }} />
-                <div style={{ fontFamily: 'var(--font-display)', fontSize: 18, marginBottom: 6, color: 'var(--ink)' }}>Your personal finance advisor</div>
+                <div style={{ fontFamily: 'var(--font-body)', fontSize: 18, marginBottom: 6, color: 'var(--ink)' }}>Your personal finance advisor</div>
                 <div style={{ fontSize: 13 }}>Ask anything about your SIPs, retirement plan, or portfolio.</div>
               </div>
             )}
@@ -105,7 +105,7 @@ export default function AIAdvisor({ profile, sips, assets }) {
                 <div style={{ width: 32, height: 32, borderRadius: '50%', flexShrink: 0, background: msg.role === 'user' ? 'var(--ink)' : 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   {msg.role === 'user' ? <User size={14} color="white" /> : <Sparkles size={14} color="white" />}
                 </div>
-                <div style={{ maxWidth: '75%', padding: '12px 16px', borderRadius: msg.role === 'user' ? '16px 4px 16px 16px' : '4px 16px 16px 16px', background: msg.role === 'user' ? 'var(--ink)' : 'var(--paper-2)', color: msg.role === 'user' ? 'var(--paper)' : 'var(--ink)', fontSize: 13.5, lineHeight: 1.7, whiteSpace: 'pre-wrap' }}>
+                <div style={{ maxWidth: '75%', padding: '12px 16px', borderRadius: msg.role === 'user' ? '16px 4px 16px 16px' : '4px 16px 16px 16px', background: msg.role === 'user' ? 'var(--ink)' : 'var(--surface-2)', color: msg.role === 'user' ? 'var(--surface)' : 'var(--ink)', fontSize: 13.5, lineHeight: 1.7, whiteSpace: 'pre-wrap' }}>
                   {msg.content}
                 </div>
               </div>
@@ -113,7 +113,7 @@ export default function AIAdvisor({ profile, sips, assets }) {
             {loading && (
               <div style={{ display: 'flex', gap: 12 }}>
                 <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Sparkles size={14} color="white" /></div>
-                <div style={{ padding: '12px 16px', background: 'var(--paper-2)', borderRadius: '4px 16px 16px 16px', display: 'flex', gap: 4, alignItems: 'center' }}>
+                <div style={{ padding: '12px 16px', background: 'var(--surface-2)', borderRadius: '4px 16px 16px 16px', display: 'flex', gap: 4, alignItems: 'center' }}>
                   {[0, 0.2, 0.4].map((d, i) => <div key={i} style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--muted)', animation: 'pulse 1s ease infinite', animationDelay: `${d}s` }} />)}
                 </div>
               </div>
@@ -121,8 +121,8 @@ export default function AIAdvisor({ profile, sips, assets }) {
             <div ref={endRef} />
           </div>
           <div style={{ padding: '12px 16px', borderTop: '1px solid var(--border)', display: 'flex', gap: 10 }}>
-            <input value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && !e.shiftKey && send()} placeholder="Ask about your finances..." style={{ flex: 1, padding: '10px 14px', borderRadius: 8, border: '1px solid var(--border)', fontSize: 13.5, fontFamily: 'var(--font-body)', background: 'var(--paper)' }} onFocus={e => e.target.style.borderColor = 'var(--accent)'} onBlur={e => e.target.style.borderColor = 'var(--border)'} />
-            <button onClick={() => send()} disabled={!input.trim() || loading} style={{ width: 40, height: 40, borderRadius: 8, background: input.trim() ? 'var(--ink)' : 'var(--paper-3)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <input value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && !e.shiftKey && send()} placeholder="Ask about your finances..." style={{ flex: 1, padding: '10px 14px', borderRadius: 8, border: '1px solid var(--border)', fontSize: 13.5, fontFamily: 'var(--font-body)', background: 'var(--surface)' }} onFocus={e => e.target.style.borderColor = 'var(--ink)'} onBlur={e => e.target.style.borderColor = 'var(--border)'} />
+            <button onClick={() => send()} disabled={!input.trim() || loading} style={{ width: 40, height: 40, borderRadius: 8, background: input.trim() ? 'var(--ink)' : 'var(--surface-4)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
               <Send size={15} color={input.trim() ? 'white' : 'var(--muted)'} />
             </button>
           </div>
@@ -131,16 +131,16 @@ export default function AIAdvisor({ profile, sips, assets }) {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           <div style={{ fontSize: 12, fontFamily: 'var(--font-mono)', color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.07em' }}>Try asking</div>
           {SUGGESTIONS.map((s, i) => (
-            <button key={i} onClick={() => send(s)} style={{ textAlign: 'left', padding: '10px 14px', background: 'white', border: '1px solid var(--border)', borderRadius: 8, fontSize: 12.5, color: 'var(--ink)', lineHeight: 1.5, transition: 'all 0.15s' }} onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--accent)'; e.currentTarget.style.background = 'var(--accent-pale)'; }} onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.background = 'white'; }}>
+            <button key={i} onClick={() => send(s)} style={{ textAlign: 'left', padding: '10px 14px', background: 'white', border: '1px solid var(--border)', borderRadius: 8, fontSize: 12.5, color: 'var(--ink)', lineHeight: 1.5, transition: 'all 0.15s' }} onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--ink)'; e.currentTarget.style.background = 'var(--surface-2)'; }} onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.background = 'white'; }}>
               {s}
             </button>
           ))}
-          <Card style={{ padding: 14, background: 'var(--paper-2)' }}>
+          <Card style={{ padding: 14, background: 'var(--surface-2)' }}>
             <div style={{ fontSize: 11, fontFamily: 'var(--font-mono)', color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 8 }}>My context</div>
             {[{ l: 'Age', v: profile.age }, { l: 'Monthly SIP', v: formatINR(sips.reduce((s, x) => s + x.amount, 0), true) }, { l: 'Net Worth', v: formatINR(assets.reduce((s, a) => s + a.value, 0), true) }, { l: 'Target', v: formatINR(profile.targetCorpus, true) }].map(({ l, v }) => (
               <div key={l} style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0', fontSize: 11, fontFamily: 'var(--font-mono)', borderBottom: '1px solid var(--border)' }}>
                 <span style={{ color: 'var(--muted)' }}>{l}</span>
-                <span style={{ color: 'var(--accent)' }}>{v}</span>
+                <span style={{ color: 'var(--ink)' }}>{v}</span>
               </div>
             ))}
           </Card>

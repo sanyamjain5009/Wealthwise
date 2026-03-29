@@ -69,7 +69,7 @@ export default function Benchmark({ sips }) {
             <div style={{ fontSize: 13, fontWeight: 500, marginBottom: 14 }}>Settings</div>
 
             {/* Mode toggle */}
-            <div style={{ display: 'flex', marginBottom: 14, background: 'var(--paper-2)', borderRadius: 6, padding: 3 }}>
+            <div style={{ display: 'flex', marginBottom: 14, background: 'var(--surface-2)', borderRadius: 6, padding: 3 }}>
               {['sip', 'lump'].map(m => (
                 <button key={m} onClick={() => setMode(m)} style={{
                   flex: 1, padding: '6px 0', borderRadius: 4, fontSize: 12, fontWeight: 500,
@@ -166,7 +166,7 @@ export default function Benchmark({ sips }) {
                       </span>
                       <span style={{ fontSize: 12, fontFamily: 'var(--font-mono)', color: 'var(--muted)' }}>{formatINR(val, true)}</span>
                     </div>
-                    <div style={{ height: 5, background: 'var(--paper-2)', borderRadius: 2, overflow: 'hidden' }}>
+                    <div style={{ height: 5, background: 'var(--surface-2)', borderRadius: 2, overflow: 'hidden' }}>
                       <div style={{
                         height: '100%',
                         width: `${pct}%`,
@@ -182,8 +182,8 @@ export default function Benchmark({ sips }) {
           </Card>
 
           {/* Insight box */}
-          <Card style={{ background: 'var(--accent-pale)', border: '1px solid rgba(200,135,58,0.2)', padding: 16 }}>
-            <div style={{ fontSize: 11, fontFamily: 'var(--font-mono)', color: 'var(--accent)', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.07em' }}>Market Insight</div>
+          <Card style={{ background: 'var(--surface-2)', border: '1px solid rgba(200,135,58,0.2)', padding: 16 }}>
+            <div style={{ fontSize: 11, fontFamily: 'var(--font-mono)', color: 'var(--ink)', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.07em' }}>Market Insight</div>
             <div style={{ fontSize: 12, color: 'var(--ink)', lineHeight: 1.7 }}>
               Over a {years}-year period, equity markets historically beat FD/PPF by <strong>{(BENCHMARKS['Nifty 50'].cagr - BENCHMARKS['Fixed Deposit'].cagr).toFixed(1)}%</strong> per year.
               Due to compounding, that difference grows significantly — the Nifty 50 would generate <strong>{formatINR(((chartData[years] || {})['Nifty 50'] || 0) - ((chartData[years] || {})['Fixed Deposit'] || 0), true)}</strong> more than FD in this scenario.

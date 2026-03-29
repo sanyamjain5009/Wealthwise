@@ -82,12 +82,17 @@ const buildStepUpTable = (startingSIP, annualStepUp, annualReturn, years, curren
   return rows;
 };
 
-export default function Retirement({ profile, onProfileChange, sips, netWorthTotal }) {
+export default function Retirement({ profile, onProfileChange, sips, spouseSips = [], netWorthTotal, spouse }) {
   const [stepUpRate, setStepUpRate] = useState(10);
   const [showFullTable, setShowFullTable] = useState(false);
+  const [manualSIP, setManualSIP] = useState(0);
 
   const years = yearsToRetirement(profile.age, profile.retirementAge);
-  const totalMonthly = sips.reduce((s, x) => s + x.amount, 0);
+  const sipPlannerTotal = sips.reduce((s, x) => s + x.amount, 0);
+  const spouseSIPTotal = spouseSips.reduce((s, x) => s + x.amount, 0);
+  const combinedSIPTotal = sipPlannerTotal + spouseSIPTotal;
+  // Use manual SIP if entered, otherwise fall back to combined SIP Planner total
+  const totalMonthly = manualSIP > 0 ? manualSIP : combinedSIPTotal;
   const currentCorpus = netWorthTotal || 0;
 
   const targetCorpusFuture = inflateToFuture(profile.targetCorpus, profile.inflation, years);
@@ -156,6 +161,35 @@ export default function Retirement({ profile, onProfileChange, sips, netWorthTot
                 </div>
                 <div style={{ fontSize: 11, color: 'var(--muted)', fontStyle: 'italic' }}>Update in the Net Worth tab</div>
               </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                <label style={{ fontSize: 11, fontFamily: 'var(--font-mono)', letterSpacing: '0.07em', color: 'var(--muted)', textTransform: 'uppercase' }}>
+                  Current Monthly SIP
+                </label>
+                {sipPlannerTotal > 0 ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                    <div style={{ padding: '10px 14px', background: 'var(--surface-2)', border: '1px solid rgba(200,135,58,0.3)', borderRadius: 'var(--radius)', fontSize: 14, fontFamily: 'var(--font-mono)', fontWeight: 500, color: 'var(--ink)', display: 'flex', justifyContent: 'space-between' }}>
+                      <span>{formatINR(sipPlannerTotal)}</span>
+                      <span style={{ fontSize: 10, opacity: 0.7 }}>← from SIP Planner</span>
+                    </div>
+                    <div style={{ fontSize: 11, color: 'var(--muted)', fontStyle: 'italic' }}>
+                      Using SIP Planner total. Override below if needed.
+                    </div>
+                    <CurrencyInput
+                      label="Override Monthly SIP (optional)"
+                      value={manualSIP}
+                      onChange={setManualSIP}
+                      hint={manualSIP > 0 ? `Using ₹${formatINR(manualSIP, true)}/mo for projections` : 'Leave 0 to use SIP Planner total'}
+                    />
+                  </div>
+                ) : (
+                  <CurrencyInput
+                    label=""
+                    value={manualSIP}
+                    onChange={setManualSIP}
+                    hint="Add SIPs in the SIP Planner tab for auto-fill"
+                  />
+                )}
+              </div>
               <CurrencyInput label="Monthly Expenses Today (₹)" value={profile.monthlyExpense} onChange={v => onProfileChange({ ...profile, monthlyExpense: v })} hint={`= ${formatINR(monthlyExpenseFuture, true)}/mo at retirement`} />
               <CurrencyInput label="Target Corpus (today's money)" value={profile.targetCorpus} onChange={v => onProfileChange({ ...profile, targetCorpus: v })} hint={`= ${formatINR(targetCorpusFuture, true)} in future money`} />
             </div>
@@ -181,7 +215,7 @@ export default function Retirement({ profile, onProfileChange, sips, netWorthTot
             <div style={{ fontSize: 11, fontFamily: 'var(--font-mono)', opacity: 0.7, marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
               {onTrack ? '✓ On Track' : '⚠ Shortfall Detected'}
             </div>
-            <div style={{ fontFamily: 'var(--font-display)', fontSize: 32, fontWeight: 600, letterSpacing: '-1px' }}>
+            <div style={{ fontFamily: 'var(--font-body)', fontSize: 32, fontWeight: 600, letterSpacing: '-1px' }}>
               {formatINR(Math.abs(surplus), true)}
             </div>
             <div style={{ opacity: 0.75, fontSize: 13, marginTop: 4 }}>
@@ -189,16 +223,37 @@ export default function Retirement({ profile, onProfileChange, sips, netWorthTot
             </div>
           </Card>
 
+          {/* Spouse contribution banner */}
+          {spouse?.name && spouseSIPTotal > 0 && (
+            <Card style={{ padding: 14, background: 'var(--green-pale)', border: '1px solid var(--green-light)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ fontSize: 13, color: 'var(--green)', fontWeight: 500 }}>
+                🤝 Joint plan with {spouse.name}
+              </div>
+              <div style={{ display: 'flex', gap: 24 }}>
+                {[
+                  { l: `${spouse.name}'s SIP`, v: formatINR(spouseSIPTotal, true) + '/mo' },
+                  { l: 'Combined SIP', v: formatINR(combinedSIPTotal, true) + '/mo' },
+                  { l: 'Combined Net Worth', v: formatINR(netWorthTotal, true) },
+                ].map(({ l, v }) => (
+                  <div key={l} style={{ textAlign: 'right' }}>
+                    <div style={{ fontSize: 10, color: 'var(--green)', fontFamily: 'var(--font-mono)', opacity: 0.7, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{l}</div>
+                    <div style={{ fontSize: 13, fontFamily: 'var(--font-mono)', fontWeight: 600, color: 'var(--green)' }}>{v}</div>
+                  </div>
+                ))}
+              </div>
+            </Card>
+          )}
+
           {/* Key metrics */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
             {[
-              { label: 'Projected Corpus', val: formatINR(projectedCorpus, true), sub: `by age ${profile.retirementAge}`, color: 'var(--accent)' },
+              { label: 'Projected Corpus', val: formatINR(projectedCorpus, true), sub: `by age ${profile.retirementAge}`, color: 'var(--ink)' },
               { label: 'Required Corpus', val: formatINR(effectiveTarget, true), sub: `at ${profile.swr}% SWR`, color: 'var(--ink)' },
               { label: 'Monthly Expense at Retirement', val: formatINR(monthlyExpenseFuture, true), sub: `${profile.inflation}% inflation × ${years}Y`, color: 'var(--ink)' },
             ].map(({ label, val, sub, color }) => (
               <Card key={label} style={{ padding: 14, textAlign: 'center' }}>
                 <div style={{ fontSize: 10, fontFamily: 'var(--font-mono)', color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 }}>{label}</div>
-                <div style={{ fontFamily: 'var(--font-display)', fontSize: 20, fontWeight: 600, color }}>{val}</div>
+                <div style={{ fontFamily: 'var(--font-body)', fontSize: 20, fontWeight: 600, color }}>{val}</div>
                 <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 3 }}>{sub}</div>
               </Card>
             ))}
@@ -208,11 +263,11 @@ export default function Retirement({ profile, onProfileChange, sips, netWorthTot
             {[
               { label: 'Your Actual SWR', val: `${actualSWR.toFixed(2)}%`, sub: actualSWR <= 4 ? '✓ Sustainable' : '⚠ High — build more corpus', color: actualSWR <= 4 ? 'var(--green)' : 'var(--red)' },
               { label: 'Corpus Lasts Until', val: `Age ${corpusAge}`, sub: `${typeof corpusAge === 'number' ? corpusAge - profile.retirementAge : '30+'} yrs of retirement`, color: 'var(--ink)' },
-              { label: 'Current Monthly SIP', val: formatINR(totalMonthly, true), sub: `across ${sips.length} fund${sips.length !== 1 ? 's' : ''}`, color: 'var(--accent)' },
+              { label: 'Combined Monthly SIP', val: formatINR(totalMonthly, true), sub: manualSIP > 0 ? 'manual override' : `You: ${formatINR(sipPlannerTotal, true)} · ${spouse?.name || 'Spouse'}: ${formatINR(spouseSIPTotal, true)}`, color: 'var(--ink)' },
             ].map(({ label, val, sub, color }) => (
               <Card key={label} style={{ padding: 14, textAlign: 'center' }}>
                 <div style={{ fontSize: 10, fontFamily: 'var(--font-mono)', color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 }}>{label}</div>
-                <div style={{ fontFamily: 'var(--font-display)', fontSize: 20, fontWeight: 600, color }}>{val}</div>
+                <div style={{ fontFamily: 'var(--font-body)', fontSize: 20, fontWeight: 600, color }}>{val}</div>
                 <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 3 }}>{sub}</div>
               </Card>
             ))}
@@ -225,9 +280,9 @@ export default function Retirement({ profile, onProfileChange, sips, netWorthTot
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 20 }}>
               {/* Flat SIP */}
-              <div style={{ background: 'var(--paper-2)', borderRadius: 10, padding: 18, border: '1px solid var(--border)' }}>
+              <div style={{ background: 'var(--surface-2)', borderRadius: 10, padding: 18, border: '1px solid var(--border)' }}>
                 <div style={{ fontSize: 11, fontFamily: 'var(--font-mono)', color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 10 }}>Option A — Flat SIP</div>
-                <div style={{ fontFamily: 'var(--font-display)', fontSize: 28, fontWeight: 600, color: 'var(--ink)', letterSpacing: '-0.5px' }}>
+                <div style={{ fontFamily: 'var(--font-body)', fontSize: 28, fontWeight: 600, color: 'var(--ink)', letterSpacing: '-0.5px' }}>
                   {formatINR(reqFlatSIP, true)}
                 </div>
                 <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 4 }}>per month, every month</div>
@@ -243,9 +298,9 @@ export default function Retirement({ profile, onProfileChange, sips, netWorthTot
               </div>
 
               {/* Step-up SIP */}
-              <div style={{ background: 'var(--accent-pale)', borderRadius: 10, padding: 18, border: '1px solid rgba(200,135,58,0.3)' }}>
-                <div style={{ fontSize: 11, fontFamily: 'var(--font-mono)', color: 'var(--accent)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 10 }}>Option B — Step-Up SIP ({stepUpRate}%/yr)</div>
-                <div style={{ fontFamily: 'var(--font-display)', fontSize: 28, fontWeight: 600, color: 'var(--accent)', letterSpacing: '-0.5px' }}>
+              <div style={{ background: 'var(--surface-2)', borderRadius: 10, padding: 18, border: '1px solid rgba(200,135,58,0.3)' }}>
+                <div style={{ fontSize: 11, fontFamily: 'var(--font-mono)', color: 'var(--ink)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 10 }}>Option B — Step-Up SIP ({stepUpRate}%/yr)</div>
+                <div style={{ fontFamily: 'var(--font-body)', fontSize: 28, fontWeight: 600, color: 'var(--ink)', letterSpacing: '-0.5px' }}>
                   {formatINR(reqStepUpSIP, true)}
                 </div>
                 <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 4 }}>starting monthly SIP</div>
@@ -254,7 +309,7 @@ export default function Retirement({ profile, onProfileChange, sips, netWorthTot
                   Year {years} SIP: <strong>{formatINR(reqStepUpSIP * Math.pow(1 + stepUpRate / 100, years - 1), true)}/mo</strong>
                 </div>
                 {totalMonthly > 0 && (
-                  <div style={{ marginTop: 8, fontSize: 11, padding: '5px 8px', borderRadius: 4, background: reqStepUpSIP <= totalMonthly ? 'var(--green-pale)' : 'var(--accent-pale)', color: reqStepUpSIP <= totalMonthly ? 'var(--green)' : 'var(--accent)', border: '1px solid rgba(200,135,58,0.2)' }}>
+                  <div style={{ marginTop: 8, fontSize: 11, padding: '5px 8px', borderRadius: 4, background: reqStepUpSIP <= totalMonthly ? 'var(--green-pale)' : 'var(--surface-2)', color: reqStepUpSIP <= totalMonthly ? 'var(--green)' : 'var(--accent)', border: '1px solid rgba(200,135,58,0.2)' }}>
                     {reqStepUpSIP <= totalMonthly ? `✓ Your current SIP covers this` : `↑ Need ${formatINR(reqStepUpSIP - totalMonthly, true)}/mo more to start`}
                   </div>
                 )}
@@ -300,12 +355,12 @@ export default function Retirement({ profile, onProfileChange, sips, netWorthTot
                 </thead>
                 <tbody>
                   {visibleRows.map((row, i) => (
-                    <tr key={row.year} style={{ borderBottom: '1px solid var(--border)', background: i % 2 === 0 ? 'transparent' : 'var(--paper)' }}>
+                    <tr key={row.year} style={{ borderBottom: '1px solid var(--border)', background: i % 2 === 0 ? 'transparent' : 'var(--surface)' }}>
                       <td style={{ padding: '9px 12px', fontWeight: 500 }}>
                         {row.age}
                         {row.age === profile.retirementAge && <span style={{ marginLeft: 6, fontSize: 9, background: 'var(--green)', color: 'white', padding: '1px 5px', borderRadius: 3 }}>RETIRE</span>}
                       </td>
-                      <td style={{ padding: '9px 12px', textAlign: 'right', fontFamily: 'var(--font-mono)', color: 'var(--accent)', fontWeight: 500 }}>{formatINR(row.monthlySIP, true)}</td>
+                      <td style={{ padding: '9px 12px', textAlign: 'right', fontFamily: 'var(--font-mono)', color: 'var(--ink)', fontWeight: 500 }}>{formatINR(row.monthlySIP, true)}</td>
                       <td style={{ padding: '9px 12px', textAlign: 'right', fontFamily: 'var(--font-mono)', color: 'var(--muted)' }}>{formatINR(row.annualSIP, true)}</td>
                       <td style={{ padding: '9px 12px', textAlign: 'right', fontFamily: 'var(--font-mono)', fontWeight: 600 }}>{formatINR(row.corpusEnd, true)}</td>
                     </tr>

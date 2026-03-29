@@ -122,14 +122,14 @@ function FileUploadZone({ onFile, label, sublabel }) {
         border: `2px dashed ${dragging ? 'var(--accent)' : 'var(--border)'}`,
         borderRadius: 10, padding: '36px 24px', textAlign: 'center',
         cursor: 'pointer', transition: 'all 0.15s',
-        background: dragging ? 'var(--accent-pale)' : 'var(--paper)',
+        background: dragging ? 'var(--surface-2)' : 'var(--surface)',
       }}
-      onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--accent)'}
+      onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--ink)'}
       onMouseLeave={e => { if (!dragging) e.currentTarget.style.borderColor = 'var(--border)'; }}
     >
       <input ref={inputRef} type="file" accept=".xlsx,.xls" style={{ display: 'none' }}
         onChange={e => handleFile(e.target.files[0])} />
-      <Upload size={32} style={{ color: 'var(--accent)', margin: '0 auto 12px', display: 'block', opacity: 0.8 }} />
+      <Upload size={32} style={{ color: 'var(--ink)', margin: '0 auto 12px', display: 'block', opacity: 0.8 }} />
       <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 4 }}>{label}</div>
       <div style={{ fontSize: 12, color: 'var(--muted)', lineHeight: 1.6 }}>{sublabel}</div>
       <div style={{ marginTop: 12, fontSize: 11, color: 'var(--muted)', fontFamily: 'var(--font-mono)' }}>
@@ -145,7 +145,7 @@ function HoldingRow({ item, onToggle, isEquity }) {
   return (
     <label style={{
       display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px',
-      background: item.selected ? (isEquity ? 'var(--green-pale)' : 'var(--accent-pale)') : 'var(--paper-2)',
+      background: item.selected ? (isEquity ? 'var(--green-pale)' : 'var(--surface-2)') : 'var(--surface-2)',
       borderRadius: 6, cursor: 'pointer',
       border: `1px solid ${item.selected ? (isEquity ? 'rgba(45,106,79,0.25)' : 'rgba(200,135,58,0.25)') : 'transparent'}`,
       transition: 'all 0.1s',
@@ -222,7 +222,12 @@ export default function Import({ onImportMF, onImportStocks }) {
       id: s.id, name: s.name, category: s.category,
       amount: 0, expectedReturn: s.expectedReturn,
       currentValue: s.currentValue, units: s.qty,
-      nav: s.ltp, isin: s.isin, importedFromZerodha: true,
+      nav: s.ltp, isin: s.isin,
+      avgPrice: s.avgPrice,
+      cost: s.cost,
+      plPct: s.plPct,
+      unrealizedPL: s.unrealizedPL,
+      importedFromZerodha: true,
     }));
     const mfAssets = selectedMF.map(s => ({
       id: s.id + 0.1, name: s.name, category: 'Mutual Funds',
@@ -253,7 +258,7 @@ export default function Import({ onImportMF, onImportStocks }) {
 
       {/* How to download */}
       {!loaded && (
-        <Card style={{ padding: 20, marginBottom: 20, background: 'var(--paper-2)' }}>
+        <Card style={{ padding: 20, marginBottom: 20, background: 'var(--surface-2)' }}>
           <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 10 }}>How to download your holdings file</div>
           <div style={{ display: 'flex', gap: 32 }}>
             {['Go to console.zerodha.com', 'Click Portfolio → Holdings', 'Click Download → XLSX', 'Upload the file below'].map((step, i) => (
@@ -320,7 +325,7 @@ export default function Import({ onImportMF, onImportStocks }) {
               <div style={{ display: 'flex', flexDirection: 'column', gap: 6, maxHeight: 380, overflowY: 'auto' }}>
                 {mf.map(s => <HoldingRow key={s.id} item={s} onToggle={toggleMF} isEquity={false} />)}
               </div>
-              <SummaryBar label="Selected value" total={totalMF} color="var(--accent-light)" />
+              <SummaryBar label="Selected value" total={totalMF} color="var(--ink)" />
             </Card>
           </div>
 
@@ -329,15 +334,15 @@ export default function Import({ onImportMF, onImportStocks }) {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr auto', gap: 20, alignItems: 'center' }}>
               <div>
                 <div style={{ fontSize: 10, fontFamily: 'var(--font-mono)', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 4 }}>Equity</div>
-                <div style={{ fontFamily: 'var(--font-display)', fontSize: 20, fontWeight: 600, color: 'var(--green)' }}>{formatINR(totalEquity, true)}</div>
+                <div style={{ fontFamily: 'var(--font-body)', fontSize: 20, fontWeight: 600, color: 'var(--green)' }}>{formatINR(totalEquity, true)}</div>
               </div>
               <div>
                 <div style={{ fontSize: 10, fontFamily: 'var(--font-mono)', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 4 }}>Mutual Funds</div>
-                <div style={{ fontFamily: 'var(--font-display)', fontSize: 20, fontWeight: 600, color: 'var(--accent-light)' }}>{formatINR(totalMF, true)}</div>
+                <div style={{ fontFamily: 'var(--font-body)', fontSize: 20, fontWeight: 600, color: 'var(--ink)' }}>{formatINR(totalMF, true)}</div>
               </div>
               <div>
                 <div style={{ fontSize: 10, fontFamily: 'var(--font-mono)', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 4 }}>Total Portfolio</div>
-                <div style={{ fontFamily: 'var(--font-display)', fontSize: 20, fontWeight: 600, color: 'var(--paper)' }}>{formatINR(totalEquity + totalMF, true)}</div>
+                <div style={{ fontFamily: 'var(--font-body)', fontSize: 20, fontWeight: 600, color: 'var(--surface)' }}>{formatINR(totalEquity + totalMF, true)}</div>
               </div>
               {done.equity && done.mf ? (
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--green)', fontWeight: 500, fontSize: 13 }}>

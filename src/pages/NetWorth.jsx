@@ -17,7 +17,7 @@ const CustomTooltip = ({ active, payload }) => {
   return (
     <div style={{ background: 'var(--ink)', padding: '10px 14px', borderRadius: 6, fontSize: 12, fontFamily: 'var(--font-mono)' }}>
       <div style={{ color: 'rgba(255,255,255,0.7)' }}>{name}</div>
-      <div style={{ color: 'var(--accent)', fontWeight: 500 }}>{formatINR(value, true)}</div>
+      <div style={{ color: 'var(--ink)', fontWeight: 500 }}>{formatINR(value, true)}</div>
     </div>
   );
 };
@@ -31,7 +31,7 @@ function AddAssetForm({ onAdd, onCancel }) {
   };
 
   return (
-    <Card style={{ background: 'var(--accent-pale)', border: '1px solid var(--accent)', padding: 20 }}>
+    <Card style={{ background: 'var(--blue-pale)', border: '1px solid var(--border-strong)', padding: 20 }}>
       <div style={{ fontSize: 13, fontWeight: 500, marginBottom: 14, color: 'var(--ink)' }}>Add New Asset</div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
@@ -42,7 +42,7 @@ function AddAssetForm({ onAdd, onCancel }) {
             placeholder="e.g. HDFC Nifty 50 Index Fund"
             autoFocus
             style={{ padding: '10px 12px', borderRadius: 4, border: '1px solid var(--border)', fontSize: 13, fontFamily: 'var(--font-body)', background: 'white' }}
-            onFocus={e => e.target.style.borderColor = 'var(--accent)'}
+            onFocus={e => e.target.style.borderColor = 'var(--ink)'}
             onBlur={e => e.target.style.borderColor = 'var(--border)'}
             onKeyDown={e => e.key === 'Enter' && handleAdd()}
           />
@@ -113,7 +113,7 @@ function AssetRow({ asset, onRemove, onUpdate }) {
           ) : (
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
               <div style={{ textAlign: 'right' }}>
-                <div style={{ fontFamily: 'var(--font-mono)', fontSize: 14, fontWeight: 500, color: 'var(--accent)' }}>{formatINR(asset.value, true)}</div>
+                <div style={{ fontFamily: 'var(--font-mono)', fontSize: 14, fontWeight: 500, color: 'var(--ink)' }}>{formatINR(asset.value, true)}</div>
                 <div style={{ fontSize: 10, color: 'var(--muted)' }}>{formatINR(asset.value)}</div>
               </div>
               <button onClick={() => { setEditValue(asset.value); setEditing(true); }} style={{ background: 'transparent', color: 'var(--muted)', padding: 4, border: 'none', cursor: 'pointer' }}>
@@ -163,7 +163,7 @@ export default function NetWorth({ assets, onAssetsChange }) {
           {/* Total */}
           <Card style={{ background: 'var(--ink)', padding: 24 }}>
             <div style={{ fontSize: 11, fontFamily: 'var(--font-mono)', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>Total Net Worth</div>
-            <div style={{ fontFamily: 'var(--font-display)', fontSize: 40, fontWeight: 600, color: 'var(--paper)', letterSpacing: '-1.5px' }}>
+            <div style={{ fontFamily: 'var(--font-body)', fontSize: 40, fontWeight: 600, color: 'var(--surface)', letterSpacing: '-1.5px' }}>
               {formatINR(total)}
             </div>
             <div style={{ marginTop: 8, fontSize: 12, color: 'rgba(255,255,255,0.35)' }}>{assets.length} asset{assets.length !== 1 ? 's' : ''} tracked · auto-synced to Retirement planner</div>
@@ -182,7 +182,7 @@ export default function NetWorth({ assets, onAssetsChange }) {
                 display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
                 cursor: 'pointer', transition: 'all 0.15s',
               }}
-              onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--accent)'; e.currentTarget.style.color = 'var(--accent)'; }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--ink)'; e.currentTarget.style.color = 'var(--accent)'; }}
               onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.color = 'var(--muted)'; }}
             >
               <Plus size={15} /> Add Asset
@@ -191,7 +191,7 @@ export default function NetWorth({ assets, onAssetsChange }) {
 
           {/* Empty state */}
           {assets.length === 0 && !showAdd && (
-            <Card style={{ textAlign: 'center', padding: 40, color: 'var(--muted)', background: 'var(--paper-2)' }}>
+            <Card style={{ textAlign: 'center', padding: 40, color: 'var(--muted)', background: 'var(--surface-2)' }}>
               <div style={{ fontSize: 32, marginBottom: 10 }}>💰</div>
               <div style={{ fontSize: 14, fontWeight: 500, color: 'var(--ink)', marginBottom: 6 }}>No assets yet</div>
               <div style={{ fontSize: 13 }}>Click "Add Asset" above to track your mutual funds, stocks, FDs, gold, and more.</div>
@@ -249,7 +249,7 @@ export default function NetWorth({ assets, onAssetsChange }) {
           )}
 
           {byCategory.length > 0 && (
-            <Card style={{ background: 'var(--paper-2)', padding: 16 }}>
+            <Card style={{ background: 'var(--surface-2)', padding: 16 }}>
               <div style={{ fontSize: 11, fontFamily: 'var(--font-mono)', color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 10 }}>Portfolio Health</div>
               {(() => {
                 const equityPct = byCategory.filter(c => ['Mutual Funds', 'Stocks'].includes(c.name)).reduce((s, c) => s + c.value, 0) / total * 100;

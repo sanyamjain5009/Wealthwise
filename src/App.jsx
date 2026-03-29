@@ -7,6 +7,7 @@ import Benchmark from './pages/Benchmark.jsx';
 import AIAdvisor from './pages/AIAdvisor.jsx';
 import NetWorth from './pages/NetWorth.jsx';
 import Import from './pages/Import.jsx';
+import Spouse from './pages/Spouse.jsx';
 import ProfileSetup from './pages/ProfileSetup.jsx';
 import { useLocalStorage } from './hooks/useLocalStorage.js';
 
@@ -16,18 +17,32 @@ const DEFAULT_PROFILE = {
   inflation: 6, swr: 3.5,
 };
 
+const DEFAULT_SPOUSE = { name: '', age: 27, monthlyIncome: 0, monthlyExpense: 0 };
+
 export default function App() {
   const [profile, setProfile] = useLocalStorage('ww_profile', DEFAULT_PROFILE);
   const [sips, setSips] = useLocalStorage('ww_sips', []);
   const [assets, setAssets] = useLocalStorage('ww_assets', []);
+  const [spouse, setSpouse] = useLocalStorage('ww_spouse', DEFAULT_SPOUSE);
+  const [spouseSips, setSpouseSips] = useLocalStorage('ww_spouse_sips', []);
+  const [spouseAssets, setSpouseAssets] = useLocalStorage('ww_spouse_assets', []);
   const [page, setPage] = useState('dashboard');
   const [setupDone, setSetupDone] = useLocalStorage('ww_setup', false);
 
-  const netWorthTotal = useMemo(() => assets.reduce((sum, a) => sum + a.value, 0), [assets]);
-  const profileWithCorpus = useMemo(() => ({ ...profile, currentCorpus: netWorthTotal }), [profile, netWorthTotal]);
+  // Combined net worth: your assets + spouse assets
+  const netWorthTotal = useMemo(() => assets.reduce((s, a) => s + a.value, 0), [assets]);
+  const spouseNetWorth = useMemo(() => spouseAssets.reduce((s, a) => s + a.value, 0), [spouseAssets]);
+  const combinedNetWorth = netWorthTotal + spouseNetWorth;
+
+  // Combined SIP
+  const spouseSIPTotal = useMemo(() => spouseSips.reduce((s, x) => s + x.amount, 0), [spouseSips]);
+
+  const profileWithCorpus = useMemo(() => ({
+    ...profile,
+    currentCorpus: combinedNetWorth,
+  }), [profile, combinedNetWorth]);
 
   const handleImportMF = (newSips, newAssets) => {
-    // Remove any previously imported items and replace with new ones
     const manualSips = sips.filter(s => !s.importedFromZerodha);
     const manualAssets = assets.filter(a => !a.importedFromZerodha);
     setSips([...manualSips, ...newSips]);
@@ -42,19 +57,29 @@ export default function App() {
   }
 
   const pages = {
-    dashboard: <Dashboard profile={profileWithCorpus} sips={sips} netWorth={assets} onNav={setPage} />,
+    dashboard: <Dashboard profile={profileWithCorpus} sips={[...sips, ...spouseSips]} netWorth={[...assets, ...spouseAssets]} onNav={setPage} />,
     sip: <SIPPlanner sips={sips} onSipsChange={setSips} />,
-    retirement: <Retirement profile={profileWithCorpus} onProfileChange={setProfile} sips={sips} netWorthTotal={netWorthTotal} />,
-    benchmark: <Benchmark sips={sips} />,
+    retirement: (
+      <Retirement
+        profile={profileWithCorpus}
+        onProfileChange={setProfile}
+        sips={sips}
+        spouseSips={spouseSips}
+        netWorthTotal={combinedNetWorth}
+        spouse={spouse}
+      />
+    ),
+    benchmark: <Benchmark sips={[...sips, ...spouseSips]} />,
     networth: <NetWorth assets={assets} onAssetsChange={setAssets} />,
+    spouse: <Spouse spouse={spouse} onSpouseChange={setSpouse} spouseSips={spouseSips} onSpouseSipsChange={setSpouseSips} spouseAssets={spouseAssets} onSpouseAssetsChange={setSpouseAssets} />,
     import: <Import onImportMF={handleImportMF} onImportStocks={handleImportStocks} />,
-    advisor: <AIAdvisor profile={profileWithCorpus} sips={sips} assets={assets} />,
+    advisor: <AIAdvisor profile={profileWithCorpus} sips={[...sips, ...spouseSips]} assets={[...assets, ...spouseAssets]} />,
   };
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh' }}>
-      <Sidebar active={page} onNav={setPage} />
-      <main style={{ flex: 1, marginLeft: 220, padding: '36px 40px', minHeight: '100vh', maxWidth: '100%' }}>
+    <div style={{ display: 'flex', minHeight: '100vh', background: 'var(--surface-2)' }}>
+      <Sidebar active={page} onNav={setPage} spouse={spouse} />
+      <main style={{ flex: 1, marginLeft: 220, padding: '32px 36px', minHeight: '100vh', maxWidth: '100%' }}>
         {pages[page] || pages['dashboard']}
       </main>
     </div>
